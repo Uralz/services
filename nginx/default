@@ -1,0 +1,36 @@
+server {
+	listen 80 default_server;
+	listen [::]:80 default_server;
+	server_name 127.0.0.1;
+	return 301 https://$server_name$request_uri;
+
+}
+
+server {
+
+	listen 443 ssl default_server;
+	listen [::]:443 ssl default_server;
+
+	ssl_certificate /etc/ssl/certs/nginx.pem;
+	ssl_certificate_key /etc/ssl/private/nginx.key;
+
+	root /var/www/mysite;
+
+	index index.php index.html index.htm index.nginx-debian.html;
+
+	server_name 127.0.0.1;
+
+	location / {
+		autoindex on;
+		try_files $uri $uri/ =404;
+	}
+
+	location ~ \.php$ {
+		include snippets/fastcgi-php.conf;
+		fastcgi_pass wordpress:9000;
+	}
+
+	location ~ /\.ht {
+		deny all;
+	}
+}

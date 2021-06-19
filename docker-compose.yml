@@ -1,0 +1,60 @@
+version: "3"
+
+# volumes:
+#     wp_db: 
+#     wp_web:
+
+networks:
+    inception:
+        driver: bridge
+
+services:
+    nginx:
+        depends_on:
+            - wordpress
+        build: nginx
+        ports:
+            - 80:80
+            - 443:443
+        restart: on-failure
+        volumes:
+            - ~/data/wordpress:/var/www/mysite/
+        networks:
+            - inception
+
+    wordpress:
+        depends_on:
+            - maria_db
+        build: wordpress
+        ports:
+            - "9000"
+        volumes:
+            - ~/data/wordpress:/var/www/mysite/
+        restart: on-failure
+        networks:
+            - inception
+    
+    maria_db:
+        build: maria_db
+        ports:
+            - "3306:3306"
+        volumes:
+            - ~/data/maria_db:/var/lib/mysql
+        restart: on-failure
+        networks:
+            - inception
+
+    # maria_db:
+    #     image: mariadb
+    #     environment: 
+    #         MYSQL_ALLOW_EMPTY_PASSWORD: yes
+    #         MYSQL_DATABASE: wp
+    #         MYSQL_USER: wpuser
+    #         MYSQL_PASSWORD: 12345
+    #     ports:
+    #         - "3306:3306"
+    #     volumes:
+    #         - wp_db:/var/lib/mysql
+    #     restart: on-failure
+    #     networks:
+    #         - inception
