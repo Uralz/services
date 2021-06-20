@@ -1,8 +1,17 @@
 version: "3"
 
-# volumes:
-#     wp_db: 
-#     wp_web:
+volumes:
+    wp_db:
+        driver: local
+        driver_opts: 
+            type: none
+            o: bind
+            device: ${HOME}/data/maria_db
+    wp_web:
+        driver_opts: 
+            type: none
+            o: bind
+            device: ${HOME}/data/wordpress
 
 networks:
     inception:
@@ -14,11 +23,12 @@ services:
             - wordpress
         build: nginx
         ports:
-            - 80:80
             - 443:443
         restart: on-failure
         volumes:
-            - ~/data/wordpress:/var/www/mysite/
+            - wp_web:/var/www/mysite/
+        extra_hosts: 
+            - "wbritni.42.fr:127.0.0.1"
         networks:
             - inception
 
@@ -29,7 +39,7 @@ services:
         ports:
             - "9000"
         volumes:
-            - ~/data/wordpress:/var/www/mysite/
+            - wp_web:/var/www/mysite/
         restart: on-failure
         networks:
             - inception
@@ -39,22 +49,11 @@ services:
         ports:
             - "3306:3306"
         volumes:
-            - ~/data/maria_db:/var/lib/mysql
+            - wp_db:/var/lib/mysql
+        environment: 
+            MARIA_LGN: ${MARIA_LGN}
+            MARIA_PWD: ${MARIA_PWD}
         restart: on-failure
         networks:
             - inception
-
-    # maria_db:
-    #     image: mariadb
-    #     environment: 
-    #         MYSQL_ALLOW_EMPTY_PASSWORD: yes
-    #         MYSQL_DATABASE: wp
-    #         MYSQL_USER: wpuser
-    #         MYSQL_PASSWORD: 12345
-    #     ports:
-    #         - "3306:3306"
-    #     volumes:
-    #         - wp_db:/var/lib/mysql
-    #     restart: on-failure
-    #     networks:
-    #         - inception
+        env_file: .env
