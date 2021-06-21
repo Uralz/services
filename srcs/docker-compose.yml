@@ -8,6 +8,7 @@ volumes:
             o: bind
             device: ${HOME}/data/maria_db
     wp_web:
+        driver: local
         driver_opts: 
             type: none
             o: bind
@@ -21,31 +22,40 @@ services:
     nginx:
         depends_on:
             - wordpress
-        build: nginx
+        build: requirements/nginx
+        container_name: nginx
         ports:
             - 443:443
+        environment: 
+            WP_ADMIN_LGN: ${WP_ADMIN_LGN}
+            WP_ADMIN_PWD: ${WP_ADMIN_PWD}
+            WP_ADMIN_MAIL: ${WP_ADMIN_MAIL}
+            WP_USER_LGN: ${WP_USER_LGN}
+            WP_USER_PWD: ${WP_USER_PWD}
+            WP_USER_MAIL: ${WP_USER_MAIL}
         restart: on-failure
         volumes:
-            - wp_web:/var/www/mysite/
-        extra_hosts: 
-            - "wbritni.42.fr:127.0.0.1"
+            - wp_web:/var/www/
         networks:
             - inception
 
     wordpress:
         depends_on:
             - maria_db
-        build: wordpress
+        build: requirements/wordpress
+        container_name: wordpress
         ports:
             - "9000"
         volumes:
-            - wp_web:/var/www/mysite/
+            - wp_web:/var/www/
+        env_file: .env
         restart: on-failure
         networks:
             - inception
     
     maria_db:
-        build: maria_db
+        build: requirements/maria_db
+        container_name: maria_db
         ports:
             - "3306:3306"
         volumes:
@@ -53,7 +63,7 @@ services:
         environment: 
             MARIA_LGN: ${MARIA_LGN}
             MARIA_PWD: ${MARIA_PWD}
+        env_file: .env
         restart: on-failure
         networks:
             - inception
-        env_file: .env
