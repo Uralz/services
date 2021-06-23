@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 service mysql start
 mariadb -e "CREATE DATABASE IF NOT EXISTS wp DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci;" &&\

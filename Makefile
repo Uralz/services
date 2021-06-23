@@ -19,7 +19,7 @@ restart:
 	cd srcs && docker-compose restart
 
 fclean: stop
-	cd srcs && docker system prune -y && docker volume rm $(docker volume ls -q) &&\
-	sudo rm -rf ${HOME}/data
+	cd srcs && docker system prune && docker rmi maria_db nginx wordpress 
+	docker volume rm wp_web wp_db && sudo rm -rf ${HOME}/data
 
 .PHONY: install stop restart fclean

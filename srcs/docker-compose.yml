@@ -1,13 +1,15 @@
-version: "3"
+version: "3.4"
 
 volumes:
     wp_db:
+        name: wp_db
         driver: local
         driver_opts: 
             type: none
             o: bind
             device: ${HOME}/data/maria_db
     wp_web:
+        name: wp_web
         driver: local
         driver_opts: 
             type: none
@@ -23,9 +25,27 @@ services:
         depends_on:
             - wordpress
         build: requirements/nginx
+        image: nginx
         container_name: nginx
         ports:
             - 443:443
+        volumes:
+            - wp_web:/var/www/
+        restart: on-failure
+        networks:
+            - inception
+
+    wordpress:
+        depends_on:
+            - maria_db
+        build: requirements/wordpress
+        image: wordpress
+        container_name: wordpress
+        ports:
+            - "9000"
+        volumes:
+            - wp_web:/var/www/
+        env_file: .env
         environment: 
             WP_ADMIN_LGN: ${WP_ADMIN_LGN}
             WP_ADMIN_PWD: ${WP_ADMIN_PWD}
@@ -34,36 +54,21 @@ services:
             WP_USER_PWD: ${WP_USER_PWD}
             WP_USER_MAIL: ${WP_USER_MAIL}
         restart: on-failure
-        volumes:
-            - wp_web:/var/www/
-        networks:
-            - inception
-
-    wordpress:
-        depends_on:
-            - maria_db
-        build: requirements/wordpress
-        container_name: wordpress
-        ports:
-            - "9000"
-        volumes:
-            - wp_web:/var/www/
-        env_file: .env
-        restart: on-failure
         networks:
             - inception
     
     maria_db:
         build: requirements/maria_db
+        image: maria_db
         container_name: maria_db
         ports:
             - "3306:3306"
         volumes:
             - wp_db:/var/lib/mysql
+        env_file: .env
         environment: 
             MARIA_LGN: ${MARIA_LGN}
             MARIA_PWD: ${MARIA_PWD}
-        env_file: .env
         restart: on-failure
         networks:
             - inception
