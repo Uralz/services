@@ -3,12 +3,6 @@ IP_ADDR=127.0.0.1
 
 
 all: hosts install
-
-wpclean: stop
-	docker rm wordpress nginx maria_db
-	docker rmi wordpress
-	docker volume rm wp_web
-	sudo rm -rf ~/data/
 	
 install:
 	cd srcs &&\
