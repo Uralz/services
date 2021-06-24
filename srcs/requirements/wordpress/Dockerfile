@@ -16,7 +16,7 @@ RUN wget https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.ph
 RUN chmod +x wp-cli.phar && cp wp-cli.phar /usr/local/bin/wp
 
 # Finish
-COPY wp_run.sh /var/www/wordpress
+COPY wp_run.sh /var/www/wordpress/
 RUN chmod +x /var/www/wordpress/wp_run.sh
 RUN rm -rf latest.tar.gz wordpress wp-cli.phar /var/www/html
 
@@ -25,4 +25,3 @@ RUN echo "listen = 9000" >> /etc/php/7.3/fpm/pool.d/www.conf
 RUN service php7.3-fpm start && service php7.3-fpm stop
 WORKDIR /var/www/wordpress
 ENTRYPOINT ["./wp_run.sh"]
-# ENTRYPOINT ["php-fpm7.3", "--nodaemonize"]
